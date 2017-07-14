@@ -2,6 +2,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/do';
 
+import { validateBoard } from './validators';
+
 export enum Values {
    x = <any>'X',
    o = <any>'O',
@@ -11,8 +13,7 @@ export enum Values {
 export enum Status {
    running = <any>'Corriendo',
    draw = <any>'Empate',
-   win1 = <any>'Jugador 1 Ganador!',
-   win2 = <any>'Jugador 2 Ganador!'
+   win = <any>'Hay ganador'
 }
 
 export interface ISpotInfo {
@@ -22,9 +23,13 @@ export interface ISpotInfo {
 };
 
 export interface IStore {
-   board: [ISpotInfo[]],
+   board: ISpotInfo[][],
    currentPlayer: number,
    status: Status
+}
+
+export function getSpot(board: ISpotInfo[][], { row, spot }): ISpotInfo {
+   return board[row][spot];
 }
 
 class Game {
@@ -46,8 +51,8 @@ class Game {
    }
 
    makeMove(spotInfo: ISpotInfo) {
-      let storeInfo = JSON.parse(JSON.stringify(this.storeInfo));
-      const spot = storeInfo.board[spotInfo.row][spotInfo.spot];
+      let storeInfo: IStore = JSON.parse(JSON.stringify(this.storeInfo));
+      const spot = getSpot(storeInfo.board, spotInfo);
 
       if (storeInfo.status !== Status.running || spot.value !== Values.empty) {
          return
@@ -55,8 +60,9 @@ class Game {
 
       spot.value = this.moves[storeInfo.currentPlayer];
       storeInfo.currentPlayer = Math.round((storeInfo.currentPlayer + 1) % 2);
+      storeInfo.status = this.getStatus(storeInfo.board);
 
-      this.updateStore(storeInfo);
+      this.updateStore(storeInfo);;
    }
 
    restart() {
@@ -67,8 +73,8 @@ class Game {
       });
    }
 
-   private getNewBoard(): [ISpotInfo[]] {
-      let board: [ISpotInfo[]] = <any>[];
+   private getNewBoard(): ISpotInfo[][] {
+      let board: ISpotInfo[][] = <any>[];
 
       for (var r = 0; r < 3; r++) {
          board[r] = [];
@@ -84,8 +90,8 @@ class Game {
       this.storeSubject.next(value);
    }
 
-   private checkStatus() {
-      /** TODO: hacer validadores de Status */
+   private getStatus(board) {
+      return validateBoard(board);
    }
 
 }
