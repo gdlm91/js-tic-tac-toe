@@ -1,7 +1,9 @@
-export default class Main {
-    constructor() {
-        console.log('Typescript Webpack starter launched');
-    }
-}
+import 'index.css';
 
-let start = new Main();
+import { game } from './game';
+
+import { board, clearBtnClick$ } from './ui';
+
+board.onClick$.subscribe(game.makeMove.bind(game));
+
+clearBtnClick$.subscribe(game.restart.bind(game));

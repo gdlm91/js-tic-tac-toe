@@ -40,6 +40,8 @@
     "webpack-dev-server": "2.2.0"
   },
   "dependencies": {
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "redom": "^3.2.1",
+    "rxjs": "^5.4.2"
   }
 }
